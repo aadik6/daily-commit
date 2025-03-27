@@ -1,0 +1,39 @@
+name: Aadi's Daily Commit
+
+on:
+  schedule:
+    # Run at 3:15 PM UTC which is 9:00 PM NPT (Nepali Standard Time)
+    - cron: "15 15 * * *" # 3:15 PM UTC corresponds to 9:00 PM NPT
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Update or create file
+        run: |
+          set -e
+          git config --global user.name "aadik6"
+          git config --global user.email "aadarshkumarman@gmail.com"
+          FILE="commit_number.md"
+
+          # Check if the file exists
+          if [ ! -f "$FILE" ]; then
+            echo "Hello, my name is Aadarsh Kushwaha" > "$FILE"
+            echo "commit number: 1" >> "$FILE"
+          else
+            # Read the current commit number and increment it
+            CURRENT_COUNT=$(grep -oP 'commit number: \K\d+' "$FILE" || echo 0)
+            NEXT_COUNT=$((CURRENT_COUNT + 1))
+            sed -i "/commit number: /c\commit number: $NEXT_COUNT" "$FILE"
+          fi
+
+          # Add the file and commit the changes
+          git add "$FILE"
+          git commit -m "Updated commit number to $NEXT_COUNT"
+          git push
